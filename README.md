@@ -6,11 +6,7 @@
 
 #### Designed with ReactJS and Ant Design
 
----
-
 Data from: 
 
 [reddit.com/r/theonion](https://www.reddit.com/r/theonion/hot.json) and
 [reddit.com/r/nottheonion](https://www.reddit.com/r/nottheonion/hot.json)
-
-Designed with React and Ant Design
