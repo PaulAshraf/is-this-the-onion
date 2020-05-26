@@ -63,13 +63,15 @@ function App() {
       />
       )
     }
-    if(notOnion.length !== 0){
-      let qs = notOnion.pop()
-      return <Question title={qs.title} img={qs.img} handleOnion={handleWrong} handleNotOnion={handleCorrect}/>
-    }
-    if(onion.length !== 0){
-      let qs = onion.pop()
-      return <Question title={qs.title} img={qs.img} handleOnion={handleCorrect} handleNotOnion={handleWrong}/>
+    if(onion.length === 0 || notOnion.length === 0){
+      if(notOnion.length !== 0){
+        let qs = notOnion.pop()
+        return <Question title={qs.title} img={qs.img} handleOnion={handleWrong} handleNotOnion={handleCorrect}/>
+      }
+      if(onion.length !== 0){
+        let qs = onion.pop()
+        return <Question title={qs.title} img={qs.img} handleOnion={handleCorrect} handleNotOnion={handleWrong}/>
+      }
     }
     if(getRandom()){
       let qs = onion.pop()
