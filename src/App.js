@@ -5,14 +5,17 @@ import Question from './components/Question'
 
 import axios from 'axios'
 
-import { Layout, Result, Button, Alert, Tooltip} from 'antd';
-import { GithubOutlined } from '@ant-design/icons';
+
+
+import { Layout, Result, Button, Alert, Tooltip, Spin} from 'antd';
+import { GithubOutlined, LoadingOutlined } from '@ant-design/icons';
 const { Header, Footer, Content } = Layout;
+const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 function App() {
 
-  const [onion, setOnion] = useState(['.'])
-  const [notOnion, setNotOnion] = useState(['.'])
+  const [onion, setOnion] = useState(null)
+  const [notOnion, setNotOnion] = useState(null)
 
   const [correct, setCorrect] = useState(0)
   const [wrong, setWrong] = useState(0)
@@ -23,10 +26,10 @@ function App() {
 
   useEffect(() => {
     axios.get('https://www.reddit.com/r/theonion/hot.json').then((data) => {
-      setOnion(data.data.data.children.map(obj => {return obj.data.title}))
+      setOnion(data.data.data.children.map(obj => {return {title: obj.data.title, img: obj.data.thumbnail}}))
     })
     axios.get('https://www.reddit.com/r/nottheonion/hot.json').then((data) => {
-      setNotOnion(data.data.data.children.map(obj => {return obj.data.title}))
+      setNotOnion(data.data.data.children.map(obj => {return {title: obj.data.title, img: obj.data.thumbnail}}))
     })
   }, [])
 
@@ -45,41 +48,9 @@ function App() {
   }
 
   function renderQuestion(){
-    if(getRandom()){
-      let title = onion.pop()
-      return <Question title={title} handleOnion={handleCorrect} handleNotOnion={handleWrong}/>
-    }
-    else{
-      let title = notOnion.pop()
-      return <Question title={title} handleOnion={handleWrong} handleNotOnion={handleCorrect}/>
-    }
-  }
-
-  if(onion.length + notOnion.length !== 0){
-    return (
-      <Layout>
-        <Header><h1 style={{color: 'white', textAlign: 'center'}}>Is This The Onion?</h1></Header>
-        <Content>
-          <Score correct={correct} wrong={wrong}/>
-          {wrong + correct !== 0?alert?<Alert message="Correct" type="success" showIcon />:<Alert message="False" type="error" showIcon/>:<></>}
-          <br />
-          {renderQuestion()}
-        </Content>
-        <Footer>
-        <p style={{textAlign: 'center'}}>Paul Ashraf &copy; 2020</p>
-        <br />
-        <div style={{ display: 'flex', justifyContent: 'center'}}>
-        <Tooltip title="Checkout the Source Code" placement="bottom">
-          <Button type="primary" shape="circle" icon={<GithubOutlined />} target="_blank" href='https://github.com/PaulAshraf/is-this-the-onion'/>
-        </Tooltip>
-        </div>
-        </Footer>
-      </Layout>
-    );
-  }
-  else{
-    return(
-      <Result
+    if(onion.length === 0 && notOnion.length === 0){
+      return(
+        <Result
         status="success"
         title="Finshed the Round"
         extra={[
@@ -90,7 +61,78 @@ function App() {
           </Button>,
         ]}
       />
-    )
+      )
+    }
+    if(notOnion.length !== 0){
+      let qs = notOnion.pop()
+      return <Question title={qs.title} img={qs.img} handleOnion={handleWrong} handleNotOnion={handleCorrect}/>
+    }
+    if(onion.length !== 0){
+      let qs = onion.pop()
+      return <Question title={qs.title} img={qs.img} handleOnion={handleCorrect} handleNotOnion={handleWrong}/>
+    }
+    if(getRandom()){
+      let qs = onion.pop()
+      return <Question title={qs.title} img={qs.img} handleOnion={handleCorrect} handleNotOnion={handleWrong}/>
+    }
+    else{
+      let qs = notOnion.pop()
+      return <Question title={qs.title} img={qs.img} handleOnion={handleWrong} handleNotOnion={handleCorrect}/>
+    }
+  }
+  
+
+  if(wrong + correct !== 20){
+    return (
+      <Layout>
+        {(onion && notOnion && onion.length === 0 && notOnion.length === 0)?<></>:<Header><h1 style={{color: 'white', textAlign: 'center'}}>Is This The Onion?</h1></Header>}
+        <Content>
+          {(onion && notOnion && onion.length === 0 && notOnion.length === 0)?<></>:<Score correct={correct} wrong={wrong}/>}
+          {(onion && notOnion && onion.length === 0 && notOnion.length === 0)?<></>:wrong + correct !== 0?alert?<Alert message="Correct" type="success" showIcon />:<Alert message="False" type="error" showIcon/>:<></>}
+          <br />
+          {(!onion || !notOnion)?<Spin style={{ display: 'flex', justifyContent: 'center'}} indicator={antIcon} />:renderQuestion()}
+        </Content>
+        <Footer>
+          <p style={{textAlign: 'center'}}>Paul Ashraf &copy; 2020</p>
+          <br />
+          <div style={{ display: 'flex', justifyContent: 'center'}}>
+            <Tooltip title="Check the Source Code" placement="bottom">
+              <Button type="primary" shape="circle" icon={<GithubOutlined />} target="_blank" href='https://github.com/PaulAshraf/is-this-the-onion'/>
+            </Tooltip>
+          </div>
+        </Footer>
+      </Layout>
+    );
+  }
+  else{
+    if(onion && notOnion){
+      return(
+        <Layout>
+          <Content>
+            <Result
+              status="success"
+              title="Finshed the Round"
+              extra={[
+                <Score correct={correct} wrong={wrong}/>,
+                <br />,
+                <Button type="primary" key="playAgain" onClick={() => {window.location.reload()}}>
+                  Play Again
+                </Button>,
+              ]}
+            />
+          </Content>
+          <Footer>
+            <p style={{textAlign: 'center'}}>Paul Ashraf &copy; 2020</p>
+            <br />
+            <div style={{ display: 'flex', justifyContent: 'center'}}>
+              <Tooltip title="Check the Source Code" placement="bottom">
+                <Button type="primary" shape="circle" icon={<GithubOutlined />} target="_blank" href='https://github.com/PaulAshraf/is-this-the-onion'/>
+              </Tooltip>
+            </div>
+          </Footer>
+        </Layout>
+      )
+    }
   }
 
 
