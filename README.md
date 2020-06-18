@@ -4,7 +4,7 @@
 
 ---
 
-#### Designed with ReactJS and Ant Design
+#### :sparkles: Designed with ReactJS and Ant Design :sparkles:
 
 Data from: 
 
